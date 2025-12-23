@@ -1,0 +1,132 @@
+<template>
+    <div class="login-form">
+      <el-form
+        ref="loginFormRef"
+        :model="form"
+        :rules="rules"
+        @submit.native.prevent="handleSubmit"
+      >
+        <el-form-item prop="login">
+          <el-input
+            v-model="form.login"
+            placeholder="用户名或邮箱"
+            prefix-icon="el-icon-user"
+            size="large"
+          />
+        </el-form-item>
+        
+        <el-form-item prop="password">
+          <el-input
+            v-model="form.password"
+            type="password"
+            placeholder="密码"
+            prefix-icon="el-icon-lock"
+            size="large"
+            show-password
+          />
+        </el-form-item>
+        
+        <el-form-item>
+          <el-button
+            type="primary"
+            size="large"
+            :loading="loading"
+            @click="handleSubmit"
+            style="width: 100%;"
+          >
+            {{ loading ? '登录中...' : '登录' }}
+          </el-button>
+        </el-form-item>
+        
+        <div class="form-tips">
+          <p>提示：可以使用用户名或邮箱登录</p>
+          <p>系统使用Session认证，登录后自动管理会话</p>
+        </div>
+      </el-form>
+    </div>
+  </template>
+  
+  <script>
+  import { mapActions } from 'vuex'
+  
+  export default {
+    name: 'LoginForm',
+    data() {
+      return {
+        form: {
+          login: '',
+          password: ''
+        },
+        rules: {
+          login: [
+            { required: true, message: '请输入用户名或邮箱', trigger: 'blur' }
+          ],
+          password: [
+            { required: true, message: '请输入密码', trigger: 'blur' },
+            { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+          ]
+        },
+        loading: false
+      }
+    },
+    methods: {
+      ...mapActions(['login']),
+      
+      handleSubmit() {
+        this.$refs.loginFormRef.validate(async valid => {
+          if (!valid) return
+          
+          this.loading = true
+          try {
+            const result = await this.login({
+              login: this.form.login,
+              password: this.form.password
+            })
+            
+            // 触发成功事件，传递用户数据
+            this.$emit('success', result.date)
+          } catch (error) {
+            this.$message.error(
+              error.message || '登录失败，请检查用户名和密码'
+            )
+          } finally {
+            this.loading = false
+          }
+        })
+      },
+      
+      resetForm() {
+        this.form = {
+          login: '',
+          password: ''
+        }
+        if (this.$refs.loginFormRef) {
+          this.$refs.loginFormRef.resetFields()
+        }
+      },
+      
+      setUsername(username) {
+        this.form.login = username
+      }
+    }
+  }
+  </script>
+  
+  <style scoped>
+  .login-form {
+    padding: 20px 0;
+  }
+  
+  .form-tips {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f0f9ff;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .form-tips p {
+    margin: 5px 0;
+  }
+  </style>

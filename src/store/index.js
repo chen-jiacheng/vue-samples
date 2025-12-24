@@ -19,6 +19,11 @@ export default createStore({
     SET_USER(state, user) {
       state.user = user
       state.isAuthenticated = !!user
+      if (user) {
+        localStorage.setItem('user_info', JSON.stringify(user))
+      } else {
+        localStorage.removeItem('user_info')
+      }
     },
     RESET_STATE(state) {
       Object.assign(state, getDefaultState())
@@ -26,6 +31,24 @@ export default createStore({
   },
   
   actions: {
+    initApp({ commit }) {
+        // 1. 从 localStorage 尝试恢复用户信息
+        const userStr = localStorage.getItem('user_info')
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr)
+            // 2. 【可选但推荐】验证 Session 是否仍然有效
+            // 这里可以发起一个轻量级的 API 请求（如 /api/validate），
+            // 根据后端返回决定是 commit('SET_USER', user) 还是 commit('RESET_STATE')
+            // 为了快速解决问题，我们先直接恢复
+            commit('SET_USER', user)
+            console.log('从 localStorage 恢复用户状态:', user)
+          } catch (e) {
+            console.error('解析存储的用户信息失败:', e)
+            localStorage.removeItem('user_info')
+          }
+        }
+      },
     // 注册
     async register({ commit }, userInfo) {
       try {
@@ -62,7 +85,7 @@ export default createStore({
     // 注销
     async logout({ commit }) {
       try {
-        const response = await authApi.logout()
+        const response = await apiLogout()
         if (response.code === '200') {
           commit('RESET_STATE')
           localStorage.removeItem('userInfo')

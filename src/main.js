@@ -24,4 +24,7 @@ app.config.productionTip = false
 // store.dispatch('initUser') // 根据你的store逻辑决定是否保留
 
 // 6. 挂载应用
-app.mount('#app')
+store.dispatch('initApp').then(() => {
+    app.mount('#app')
+  })
+// app.mount('#app')

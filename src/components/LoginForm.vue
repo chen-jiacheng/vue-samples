@@ -6,8 +6,8 @@
             </el-form-item>
 
             <el-form-item prop="password">
-                <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="el-icon-lock" size="large"
-                    show-password />
+                <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="el-icon-lock"
+                    size="large" show-password />
             </el-form-item>
 
             <el-form-item>
@@ -91,7 +91,7 @@ export default {
 }
 </script>
 
-  
+
 <style scoped>
 .login-form {
     padding: 20px 0;
